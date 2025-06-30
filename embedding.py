@@ -4,10 +4,10 @@ from io import BytesIO
 from pyannote.audio import Model, Inference
 from settings import SETTINGS
 class Embedding:
-    def __init__(self):
+    def __init__(self,users_embedding=None):
         self.inference = self.load_model()
         self.huggingface_api_key = SETTINGS.huggingface_api_key
-        self.users_embedding = {}
+        self.users_embedding = users_embedding or  {}
 
     def load_model(self):
         """Loads the pre-trained speaker embedding model."""

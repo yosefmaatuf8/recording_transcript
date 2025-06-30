@@ -2,18 +2,26 @@ from settings import SETTINGS
 from pydub import AudioSegment
 from io import BytesIO
 from pyannote.audio import Audio
+import traceback
 import librosa
 import numpy as np
 import requests
+import json
+import os
 from tqdm import tqdm
-
+from embedding import Embedding
 
 class TranscriptWisper:
-    def __init__(self,wav_path):
+    def __init__(self,wav_path,users_embeddins):
         self.wav_path = wav_path
         self.max_size = SETTINGS.max_size_audio
         self.openai_api_key = SETTINGS.openai_api_key
         self.language = SETTINGS.language
+        self.output_dir = os.path.dirname(wav_path)
+        self.folder_name = os.path.basename(wav_path)
+        self.embedding = Embedding(users_embeddins)
+        self.full_transcription = []
+
 
     def split_audio_if_needed(self, audio):
         """Split audio into smaller chunks if it exceeds the maximum file size."""
@@ -129,3 +137,72 @@ class TranscriptWisper:
             print(response)
         return response.json() if response.status_code == 200 else None
 
+    def prepare_transcription(self, full_transcription_json):
+        """Prepare transcription in the format: 'Speaker: Text' for each line."""
+        formatted_transcription = []
+        for entry in full_transcription_json:
+            speaker = entry.get("speaker", "unknown")
+            text = entry.get("text", "")
+            formatted_transcription.append(f"{speaker}: {text}")
+        return "\n".join(formatted_transcription)
+
+    def run(self):
+        try:
+            audio = self.load_and_clean_audio()
+            audio.export(f"{self.wav_path}_clean.wav", format="wav")
+            audio_chunks = self.split_audio_if_needed(audio)
+        except Exception as e:
+            print(f"Error loading audio file: {e}")
+            traceback.print_exc()
+            return None
+
+        for chunk in tqdm(audio_chunks, desc="processing chunks..."):
+            if len(chunk) < 1000:
+                print(f"❌ Skipping short chunk ({len(chunk)}ms)")
+                continue
+
+            try:
+                # Step 1: Transcribe audio with Whisper
+                json_transcription = self.transcribe_audio_with_whisper(chunk)
+                if not json_transcription:
+                    print("json_transcription is None")
+                    continue
+                transcription_with_clusters = self.embedding.process_transcription_with_clustering(
+                    json_transcription, chunk
+                )
+
+            except Exception as e:
+                print(f"Error in transcription processing: {e}")
+                traceback.print_exc()
+                continue
+            self.full_transcription.extend(transcription_with_clusters)
+        try:
+            # Step 4: Infer speaker names based on full transcription
+            transcription_json = [
+                {"speaker":seg["speaker"], "text": seg["text"]}
+                for seg in self.full_transcription
+            ]
+
+            output_path_json = os.path.join(self.output_dir, f"transcription_{self.folder_name}.json")
+            output_path_txt = os.path.join(self.output_dir, f"transcription_{self.folder_name}.txt")
+
+                # Ensure output directory exists
+            if not os.path.exists(self.output_dir):
+                os.makedirs(self.output_dir)
+
+                # Save transcription to JSON
+            with open(output_path_json, "w", encoding="utf-8") as f:
+                json.dump(transcription_json, f, ensure_ascii=False, indent=4)
+
+                # Convert transcription to text format and save
+            with open(output_path_json, 'r') as f:
+                full_transcription_json = json.load(f)
+                full_transcription_txt = self.prepare_transcription(full_transcription_json)
+
+            with open(output_path_txt, "w", encoding="utf-8") as f:
+                f.write(full_transcription_txt)
+
+        except Exception as e:
+            print(f"Error in saving transcription: {e}")
+            traceback.print_exc()
+            return None
