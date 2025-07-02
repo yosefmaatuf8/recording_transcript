@@ -1,0 +1,11 @@
+gradio
+pydub
+numpy
+librosa
+requests
+tqdm
+scipy
+pyannote.audio
+python-dotenv
+
+

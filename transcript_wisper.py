@@ -1,7 +1,6 @@
 from settings import SETTINGS
 from pydub import AudioSegment
 from io import BytesIO
-from pyannote.audio import Audio
 import traceback
 import librosa
 import numpy as np
