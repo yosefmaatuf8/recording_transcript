@@ -3,6 +3,7 @@ import os
 import shutil
 from datetime import datetime
 from main import Main
+from utils import *
 
 MAX_SIZE_BYTES = 500 * 1024 * 1024  # 500MB
 SUPPORTED_AUDIO_EXTENSIONS = [".wav", ".mp3", ".m4a", ".ogg", ".flac", ".aac", ".wma", ".mp4", ".webm"]
@@ -33,12 +34,18 @@ def save_and_parse(username, email, file, names_str, starts_str, ends_str):
         return "❌ The number of names, start times, and end times must match", None, None
 
     users_time = {}
+    users_time = {}
     for name, start, end in zip(names, starts, ends):
         if name and start and end:
-            users_time[name] = {"start": start, "end": end}
-    processor = Main(dest_path, users_time)
+            users_time[name] = {
+                "start": time_str_to_seconds(start),
+                "end": time_str_to_seconds(end)
+            }
+
+    processor = Main(dest_path, users_time, email)
     processor.run()
-    return f"✅ File saved. Path: {dest_path}", dest_path, users_time
+    return f"✅ File uploaded successfully.\nThe transcript will be sent to: {email}", dest_path, users_time
+
 
 with gr.Blocks() as demo:
     gr.Markdown("# 🎤 Upload Audio and Define Speakers")
@@ -68,4 +75,4 @@ with gr.Blocks() as demo:
         outputs=[status_out, path_out, dict_out]
     )
 
-demo.launch(server_name="0.0.0.0", server_port=7860)
+demo.launch(server_name="0.0.0.0", server_port=5000)
