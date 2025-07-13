@@ -37,4 +37,4 @@ class CreateEmbeddingUsers:
                 self.users_embeddings[user] = user_embedding
                 return self.users_embeddings
             except Exception as e:
-                print(e)
+                print("Error to create embedding",e)

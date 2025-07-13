@@ -200,7 +200,7 @@ class TranscriptWisper:
 
             with open(output_path_txt, "w", encoding="utf-8") as f:
                 f.write(full_transcription_txt)
-
+            return output_path_txt,output_path_json
         except Exception as e:
             print(f"Error in saving transcription: {e}")
             traceback.print_exc()

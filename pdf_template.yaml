@@ -1,0 +1,5 @@
+mainfont: FreeSerif
+geometry: margin=2.5cm
+documentclass: article
+lang: he
+direction: RTL
