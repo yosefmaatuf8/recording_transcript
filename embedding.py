@@ -5,9 +5,9 @@ from pyannote.audio import Model, Inference
 from settings import SETTINGS
 class Embedding:
     def __init__(self,users_embedding=None):
-        self.inference = self.load_model()
         self.huggingface_api_key = SETTINGS.huggingface_api_key
         self.users_embedding = users_embedding or  {}
+        self.inference = self.load_model()
 
     def load_model(self):
         """Loads the pre-trained speaker embedding model."""
@@ -43,7 +43,7 @@ class Embedding:
         min_distance = float("inf")
 
         for speaker in self.users_embedding.keys():
-            embedding = [speaker]['embedding']
+            embedding = self.users_embedding[speaker]
             # Compute cosine similarity against multiple embeddings
             distance = cosine(segment_embedding, embedding)
             if distance < min_distance:
