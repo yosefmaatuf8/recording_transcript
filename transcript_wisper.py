@@ -194,7 +194,7 @@ class TranscriptWisper:
                 json.dump(transcription_json, f, ensure_ascii=False, indent=4)
 
                 # Convert transcription to text format and save
-            with open(output_path_json, 'r') as f:
+            with open(output_path_json, 'r', encoding="utf-8") as f:
                 full_transcription_json = json.load(f)
                 full_transcription_txt = self.prepare_transcription(full_transcription_json)
 

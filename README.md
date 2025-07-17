@@ -1,39 +1,53 @@
-# Audio Transcription Interface
+# Audio Transcription App
 
-A simple web interface to upload audio recordings, collect speaker timing info, and prepare them for transcription and speaker diarization.
+A simple Gradio-based app to upload audio, define speaker segments, generate transcripts and PDF, and send to email.
 
-## Features
+---
 
-- Upload audio files of any common format (WAV, MP3, M4A, etc.) up to 500MB
-- Input username, email, and speaker timing details (start/end)
-- Automatically saves the audio file under `uploads/<username>/<timestamp>/audio.wav`
-- Returns the parsed speaker dictionary
-- Outputs a downloadable `transcription.json` file
+## 🛠️ Requirements
 
+Make sure you have the following installed:
+
+### 1. System (Ubuntu/Debian)
+
+```bash
+sudo apt update
+sudo apt install \
+  build-essential \
+  libjpeg-dev \
+  zlib1g-dev \
+  libpng-dev \
+  libfreetype6-dev \
+  libfontconfig1-dev \
+  python3-dev \
+  pandoc \
+  texlive-xetex
+```
 ## Installation
 
 1. Clone the repository:
     ```bash
-    git clone <your-repo-url>
-    cd transcription
+    git clone https://github.com/yosefmaatuf8/recording_transcript.git
+    cd recording_transcript
     ```
 
 2. Create a virtual environment and install dependencies:
     ```bash
     python -m venv .venv
     source .venv/bin/activate  # Windows: .venv\Scripts\activate
+    pip install --upgrade pip setuptools wheel
     pip install -r requirements.txt
     ```
 
 ## Usage
 
 ```bash
-python app.py
+python3 GUI.py
 ```
 
-Then open your browser at:
+Open your browser to:
 ```
-http://<your-server-ip>:7860
+ http://0.0.0.0:5000.
 ```
 
 ## Folder Structure
