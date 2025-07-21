@@ -21,7 +21,8 @@ sudo apt install \
   libfontconfig1-dev \
   python3-dev \
   pandoc \
-  texlive-xetex
+  texlive-xetex \
+  ffmpeg
 ```
 ## Installation
 
