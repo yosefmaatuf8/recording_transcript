@@ -87,27 +87,30 @@ class TranscriptEmailSender:
 
         # Save DOCX file
         doc.save(docx_path)
+        try:
+            # Convert DOCX to PDF using pandoc and xelatex
+            subprocess.run([
+                "pandoc",
+                str(docx_path),
+                "-o", str(pdf_path),
+                "--pdf-engine=xelatex",
+                "--variable", "mainfont=FreeSans",
+                "--variable", "lang=he",
+                "--variable", "direction=RTL",
+                "--variable", "geometry=margin=2.5cm"
+            ], check=True)
+    
+            print(f"✅ PDF created at: {pdf_path}")
+        except Exception as e:
+            print(e)
+            pdf_path = docx_path
 
-        # Convert DOCX to PDF using pandoc and xelatex
-        subprocess.run([
-            "pandoc",
-            str(docx_path),
-            "-o", str(pdf_path),
-            "--pdf-engine=xelatex",
-            "--variable", "mainfont=FreeSans",
-            "--variable", "lang=he",
-            "--variable", "direction=RTL",
-            "--variable", "geometry=margin=2.5cm"
-        ], check=True)
-
-        print(f"✅ PDF created at: {pdf_path}")
-
-        return
+        return pdf_path
 
     def run(self, recipient_email, transcript_file_path):
 
         transcript_path = Path(transcript_file_path)
         pdf_path = transcript_path.with_suffix(".pdf")
-        self.generate_transcript_pdf(transcript_file_path, pdf_path)
-        transcript_file_paths = [transcript_file_path, pdf_path]
+        pdf_or_docx_path = self.generate_transcript_pdf(transcript_file_path, str(pdf_path))
+        transcript_file_paths = [transcript_file_path, pdf_or_docx_path]
         self.send_transcription_email(recipient_email, transcript_file_paths)
