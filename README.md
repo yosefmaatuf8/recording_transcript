@@ -22,7 +22,8 @@ sudo apt install \
   python3-dev \
   pandoc \
   texlive-xetex \
-  ffmpeg
+  ffmpeg \
+  fonts-freefont-ttf
 ```
 ## Installation
 
